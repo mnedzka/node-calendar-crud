@@ -1,1 +1,2 @@
+require('./initPassport');
 require('./server');

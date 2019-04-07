@@ -1,15 +1,35 @@
+const cors = require('cors');
 const express = require('express');
+const session = require('express-session');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
-const { PORT } = require('./constants');
-const rootRouter = require('./rootRouter');
+const passport = require('passport');
+const router = require('./router');
+const { PORT, SESSION_OPTIONS } = require('./constants');
 
 const app = express();
 
-app.use(morgan('combined'));
-app.use(express.static('public'));
+app.use(cors());
 app.use(bodyParser.json());
-app.use(rootRouter);
+app.use(morgan('combined'));
+
+// express Session
+app.use(session(SESSION_OPTIONS));
+
+// passport init
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.get('/', (req, res, next) => {
+  if (req.isAuthenticated()) {
+    next();
+  } else {
+    res.redirect('/auth/github');
+  }
+});
+
+app.use(express.static('public'));
+app.use(router);
 
 app.set('port', PORT);
 

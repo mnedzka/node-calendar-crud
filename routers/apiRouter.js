@@ -1,6 +1,15 @@
 const { Router } = require('express');
 const router = Router();
 
+router.use((req, res, next) => {
+  if (req.isAuthenticated()) {
+    next();
+  } else {
+    res.status(401);
+    res.send('Unauthorized. Please refresh page to set new session.');
+  }
+});
+
 const RESPONSE_MOCK = {
   data: [
     { date: '2019-04-01', events: [] },
