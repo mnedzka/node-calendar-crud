@@ -11,7 +11,7 @@ const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
-app.use(morgan('combined'));
+app.use(morgan('dev'));
 
 // express Session
 app.use(session(SESSION_OPTIONS));
