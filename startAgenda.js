@@ -44,3 +44,42 @@ const sendUserNotification = async (userId, title, notification) => {
     throw new Error(`error sendUserNotification | ${e}`);
   }
 };
+
+agenda.on('ready', async () => {
+  try {
+    await agenda.start();
+    await agenda.cancel({ name: SEND_NOTIFICATIONS_JOB });
+
+    await agenda.define(SEND_NOTIFICATIONS_JOB, async () => {
+      const events = await api.getEventsWithinNextMinuteWithActiveNotification();
+      console.info(['SEND_NOTIFICATIONS_JOB'], events);
+
+      events.forEach(async event => {
+        await sendUserNotification(event.userId, event.title, {
+          body: event.description
+        });
+        await api.updateEvent(event._id, { ...event, notification: false });
+      });
+    });
+
+    await agenda.every(
+      '10 second',
+      SEND_NOTIFICATIONS_JOB,
+      {},
+      {
+        timezone: 'Europe/Warsaw'
+      }
+    );
+  } catch (e) {
+    console.error(`error starting agenda | ${e}`);
+  }
+});
+
+const graceful = async () => {
+  await agenda.stop();
+
+  process.exit(0);
+};
+
+process.on('SIGTERM', graceful);
+process.on('SIGINT', graceful);
