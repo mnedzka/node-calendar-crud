@@ -141,3 +141,14 @@ module.exports.addSubscription = async (userId, data) => {
     throw new Error(`api:error | addSubscription | ${e}`);
   }
 };
+
+module.exports.deleteSubscription = async subscriptionId => {
+  try {
+    console.info(['db.api.deleteSubscription'], subscriptionId);
+    await SubscriptionModel.findByIdAndRemove(subscriptionId);
+
+    return subscriptionId;
+  } catch (e) {
+    throw new Error(`api:error | deleteSubscription | ${e}`);
+  }
+};
