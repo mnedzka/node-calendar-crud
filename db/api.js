@@ -152,3 +152,24 @@ module.exports.deleteSubscription = async subscriptionId => {
     throw new Error(`api:error | deleteSubscription | ${e}`);
   }
 };
+
+module.exports.getEventsWithinNextMinuteWithActiveNotification = async () => {
+  try {
+    const $gte = moment(Date.now())
+      .startOf('day')
+      .toDate();
+    const $lte = moment(Date.now())
+      .add(1, 'day')
+      .toDate();
+    const events = await EventModel.find({
+      time: { $gte, $lte },
+      notification: true
+    });
+
+    return events.map(doc => doc.toJSON());
+  } catch (e) {
+    throw new Error(
+      `api:error | getEventsWithinNextMinuteWithActiveNotification | ${e}`
+    );
+  }
+};
